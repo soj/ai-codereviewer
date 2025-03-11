@@ -126,7 +126,6 @@ async function getAIResponse(prompt: string): Promise<Array<{
   try {
     const response = await openai.chat.completions.create({
       ...queryConfig,
-      // return JSON if the model supports it:
       ...(OPENAI_API_MODEL === "gpt-4-1106-preview"
         ? { response_format: { type: "json_object" } }
         : {}),
@@ -138,10 +137,25 @@ async function getAIResponse(prompt: string): Promise<Array<{
       ],
     });
 
-    const res = response.choices[0].message?.content?.trim() || "{}";
-    return JSON.parse(res).reviews;
+    console.log("Raw OpenAI API Response:", JSON.stringify(response, null, 2));
+
+    const res = response.choices[0].message?.content?.trim();
+    if (!res) {
+      console.error("Error: API response content is empty");
+      return null;
+    }
+
+    try {
+      const parsedResponse = JSON.parse(res);
+      console.log("Parsed AI response:", parsedResponse);
+      return parsedResponse.reviews;
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError);
+      console.error("Response content:", res);
+      return null;
+    }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("OpenAI API Call Error:", error);
     return null;
   }
 }
