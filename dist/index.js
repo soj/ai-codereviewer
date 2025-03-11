@@ -154,7 +154,7 @@ function getAIResponse(prompt) {
                         content: prompt,
                     },
                 ] }));
-            console.log("Raw OpenAI API Response:", JSON.stringify(response, null, 2));
+            //  console.log("Raw OpenAI API Response:", JSON.stringify(response, null, 2));
             const res = (_b = (_a = response.choices[0].message) === null || _a === void 0 ? void 0 : _a.content) === null || _b === void 0 ? void 0 : _b.trim();
             if (!res) {
                 console.error("Error: API response content is empty");
@@ -163,12 +163,12 @@ function getAIResponse(prompt) {
             try {
                 const cleanedRes = res.replace(/^```json\s+|\s+```$/g, ""); // Remove the backticks and `json` keyword
                 const parsedResponse = JSON.parse(cleanedRes);
-                console.log("Parsed AI response:", parsedResponse);
+                //     console.log("Parsed AI response:", parsedResponse);
                 return parsedResponse.reviews;
             }
             catch (parseError) {
                 console.error("JSON Parse Error:", parseError);
-                console.error("Response content:", res);
+                //     console.error("Response content:", res);
                 return null;
             }
         }

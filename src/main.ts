@@ -137,7 +137,7 @@ async function getAIResponse(prompt: string): Promise<Array<{
       ],
     });
 
-    console.log("Raw OpenAI API Response:", JSON.stringify(response, null, 2));
+  //  console.log("Raw OpenAI API Response:", JSON.stringify(response, null, 2));
 
     const res = response.choices[0].message?.content?.trim();
     if (!res) {
@@ -148,11 +148,11 @@ async function getAIResponse(prompt: string): Promise<Array<{
     try {
       const cleanedRes = res.replace(/^```json\s+|\s+```$/g, ""); // Remove the backticks and `json` keyword
       const parsedResponse = JSON.parse(cleanedRes);
-      console.log("Parsed AI response:", parsedResponse);
+ //     console.log("Parsed AI response:", parsedResponse);
       return parsedResponse.reviews;
     } catch (parseError) {
       console.error("JSON Parse Error:", parseError);
-      console.error("Response content:", res);
+ //     console.error("Response content:", res);
       return null;
     }
   } catch (error) {
