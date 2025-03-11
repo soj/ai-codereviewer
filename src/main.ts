@@ -146,7 +146,8 @@ async function getAIResponse(prompt: string): Promise<Array<{
     }
 
     try {
-      const parsedResponse = JSON.parse(res);
+      const cleanedRes = res.replace(/^```json\s+|\s+```$/g, ""); // Remove the backticks and `json` keyword
+      const parsedResponse = JSON.parse(cleanedRes);
       console.log("Parsed AI response:", parsedResponse);
       return parsedResponse.reviews;
     } catch (parseError) {
