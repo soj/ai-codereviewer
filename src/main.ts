@@ -78,7 +78,7 @@ async function analyzeCode(
   return comments;
 }
 
-function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
+function createPromptOld(file: File, chunk: Chunk, prDetails: PRDetails): string {
   return `Your task is to review pull requests. Instructions:
 - Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]}
 - Do not give positive comments or compliments.
@@ -88,6 +88,64 @@ function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
 - Only provide comments on actual issues such as logic errors, potential bugs, performance problems, security concerns, or deviations from the established code standards. Do not include feedback on design changes, UI styling, or design specification adherence.
 - Do not review or comment on design aspects, styling details, or textual content changes (e.g., changes in string literals, tab titles, etc.) that do not affect the underlying code logic.
 - IMPORTANT: NEVER suggest adding comments to the code.
+
+Review the following code diff in the file "${
+    file.to
+  }" and take the pull request title and description into account when writing the response.
+  
+Pull request title: ${prDetails.title}
+Pull request description:
+
+---
+${prDetails.description}
+---
+
+Git diff to review:
+
+\`\`\`diff
+${chunk.content}
+${chunk.changes
+  // @ts-expect-error - ln and ln2 exists where needed
+  .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
+  .join("\n")}
+\`\`\`
+`;
+}
+
+function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
+  return `Provide a detailed code review for any Swift or SwiftUI code you are given, focusing on best practices, optimization, readability, and adherence to Apple's guidelines. 
+
+To accomplish this, perform the following steps:
+
+- **Analyze**: Review the provided code for logical errors, efficiency, and design patterns commonly used in Swift and SwiftUI.
+- **Optimization**: Suggest any potential optimizations, including performance improvements and minimizing resource usage.
+- **Readability**: Examine the code's clarity, commenting, and organization, suggesting improvements for maintenance and readability.
+- **Best Practices**: Ensure that the code follows Swift best practices and Apple's Human Interface Guidelines for SwiftUI.
+- **Security**: Point out any potential security vulnerabilities or concerns with data handling.
+- **Functionality**: Ensure that the code fulfills its intended functionality and suggest improvements if necessary.
+
+# Output Format
+
+Provide the response in the following JSON format:
+\`\`\`json
+{
+  "reviews": [
+    {
+      "lineNumber":  "<line_number>",
+      "reviewComment": "<review comment>"
+    }
+    // Additional entries as needed for each review comment
+  ]
+}
+\`\`\`
+
+# Notes
+
+- Pay special attention to Swift and SwiftUI specific practices.
+- Consider edge cases in the software's functionality.
+- Maintain constructive and clear language in the feedback.
+- Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
+- Write the comment in GitHub Markdown format.
 
 Review the following code diff in the file "${
     file.to
